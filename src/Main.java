@@ -1,49 +1,53 @@
 import java.util.*;
 /*
 @author: Jaslyn Jacob
-@version: 7.0;
+@version: 8.0;
  */
+class Reservation8 {
 
-class Service7 {
+  String id;
+  String guest;
+  String type;
 
-  String name;
-  int price;
+  Reservation8(String id, String guest, String type) {
+    this.id = id;
+    this.guest = guest;
+    this.type = type;
+  }
 
-  Service7(String name, int price) {
-    this.name = name;
-    this.price = price;
+  void show() {
+    System.out.println("GuesT ID: "+ id + ", Guest: " + guest + ", Room Type: " + type);
   }
 }
 
-class AddOnManager7 {
+class BookingHistory8 {
 
-  HashMap<String, List<Service7>> map;
+  List<Reservation8> list;
 
-  AddOnManager7() {
-    map = new HashMap<>();
+  BookingHistory8() {
+    list = new ArrayList<>();
   }
 
-  void addService(String resId, Service7 s) {
-
-    map.putIfAbsent(resId, new ArrayList<>());
-
-    map.get(resId).add(s);
+  void add(Reservation8 r) {
+    list.add(r);
   }
 
-  void showServices(String resId) {
+  List<Reservation8> getAll() {
+    return list;
+  }
+}
 
-    int total = 0;
+class ReportService8 {
 
-    if (map.containsKey(resId)) {
+  void printReport(List<Reservation8> l) {
 
-      for (Service7 s : map.get(resId)) {
+    System.out.println("Booking Report");
 
-        System.out.println(s.name + " " + s.price);
-        total += s.price;
-      }
+    for (Reservation8 r : l) {
+      r.show();
     }
 
-    System.out.println("Total Add-On Cost: " + total);
+    System.out.println("Total = " + l.size());
   }
 }
 
@@ -51,16 +55,14 @@ public class Main{
 
   public static void main(String[] args) {
 
-    AddOnManager7 m = new AddOnManager7();
+    BookingHistory8 h = new BookingHistory8();
 
-    String r1 = "RES1";
+    h.add(new Reservation8("R1", "A", "Single"));
+    h.add(new Reservation8("R2", "B", "Double"));
+    h.add(new Reservation8("R3", "C", "Suite"));
 
-    m.addService(r1, new Service7("Breakfast: ", 200));
-    m.addService(r1, new Service7("Wifi: ", 100));
-    m.addService(r1, new Service7("Pickup: ", 300));
+    ReportService8 r = new ReportService8();
 
-    System.out.println("Services for " + r1);
-
-    m.showServices(r1);
+    r.printReport(h.getAll());
   }
 }
