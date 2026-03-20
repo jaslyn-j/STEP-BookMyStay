@@ -3,58 +3,100 @@ import java.util.*;
 @author: Jaslyn Jacob
 @version: 5.0;
  */
+import java.util.*;
 
-class Reservation5 {
+class Reservation6 {
 
-  String guestName;
-  String roomType;
+  String guest;
+  String type;
 
-  Reservation5(String guestName, String roomType) {
-    this.guestName = guestName;
-    this.roomType = roomType;
-  }
-
-  void display() {
-    System.out.println("Processing booking for Guest: "+guestName + ", Room Type: "+roomType);
+  Reservation6(String guest, String type) {
+    this.guest = guest;
+    this.type = type;
   }
 }
 
-class BookingQueue5 {
+class Inventory6 {
 
-  Queue<Reservation5> queue;
+  HashMap<String, Integer> inv;
 
-  BookingQueue5() {
-    queue = new LinkedList<>();
+  Inventory6() {
+    inv = new HashMap<>();
+
+    inv.put("Single", 2);
+    inv.put("Double", 1);
+    inv.put("Suite", 1);
   }
 
-  void addRequest(Reservation5 r) {
+  int get(String t) {
+    return inv.get(t);
+  }
+
+  void reduce(String t) {
+    inv.put(t, inv.get(t) - 1);
+  }
+}
+
+class AllocationService6 {
+
+  Queue<Reservation6> queue;
+  Inventory6 inventory;
+
+  HashMap<String, Set<String>> allocated;
+
+  AllocationService6() {
+
+    queue = new LinkedList<>();
+    inventory = new Inventory6();
+    allocated = new HashMap<>();
+
+    allocated.put("Single", new HashSet<>());
+    allocated.put("Double", new HashSet<>());
+    allocated.put("Suite", new HashSet<>());
+  }
+
+  void addRequest(Reservation6 r) {
     queue.add(r);
   }
 
-  void showRequests() {
-    for (Reservation5 r : queue) {
-      r.display();
+  void process() {
+
+    while (!queue.isEmpty()) {
+
+      Reservation6 r = queue.poll();
+
+      if (inventory.get(r.type) > 0) {
+
+        String id = r.type + "_" + (allocated.get(r.type).size() + 1);
+
+        if (!allocated.get(r.type).contains(id)) {
+
+          allocated.get(r.type).add(id);
+          inventory.reduce(r.type);
+
+          System.out.println("Booking confirmed for Guest: "+r.guest + " Room ID: "+id);
+        }
+
+      } else {
+
+        System.out.println(
+                r.guest + " failed no " + r.type);
+      }
     }
   }
 }
 
 public class Main{
 
-  static String version = "Hotel Booking System v5.0";
-
   public static void main(String[] args) {
 
-    System.out.println("Book My Stay");
-    System.out.println(version);
+    AllocationService6 s = new AllocationService6();
 
-    BookingQueue5 q = new BookingQueue5();
+    s.addRequest(new Reservation6("A", "Single"));
+    s.addRequest(new Reservation6("B", "Single"));
+    s.addRequest(new Reservation6("C", "Single"));
+    s.addRequest(new Reservation6("D", "Suite"));
 
-    q.addRequest(new Reservation5("A", "Single"));
-    q.addRequest(new Reservation5("B", "Double"));
-    q.addRequest(new Reservation5("C", "Suite"));
-
-    System.out.println("Booking Requests in Order:");
-
-    q.showRequests();
+    s.process();
   }
 }
