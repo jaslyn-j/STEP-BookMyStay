@@ -1,88 +1,49 @@
 import java.util.*;
 /*
 @author: Jaslyn Jacob
-@version: 5.0;
+@version: 7.0;
  */
-import java.util.*;
 
-class Reservation6 {
+class Service7 {
 
-  String guest;
-  String type;
+  String name;
+  int price;
 
-  Reservation6(String guest, String type) {
-    this.guest = guest;
-    this.type = type;
+  Service7(String name, int price) {
+    this.name = name;
+    this.price = price;
   }
 }
 
-class Inventory6 {
+class AddOnManager7 {
 
-  HashMap<String, Integer> inv;
+  HashMap<String, List<Service7>> map;
 
-  Inventory6() {
-    inv = new HashMap<>();
-
-    inv.put("Single", 2);
-    inv.put("Double", 1);
-    inv.put("Suite", 1);
+  AddOnManager7() {
+    map = new HashMap<>();
   }
 
-  int get(String t) {
-    return inv.get(t);
+  void addService(String resId, Service7 s) {
+
+    map.putIfAbsent(resId, new ArrayList<>());
+
+    map.get(resId).add(s);
   }
 
-  void reduce(String t) {
-    inv.put(t, inv.get(t) - 1);
-  }
-}
+  void showServices(String resId) {
 
-class AllocationService6 {
+    int total = 0;
 
-  Queue<Reservation6> queue;
-  Inventory6 inventory;
+    if (map.containsKey(resId)) {
 
-  HashMap<String, Set<String>> allocated;
+      for (Service7 s : map.get(resId)) {
 
-  AllocationService6() {
-
-    queue = new LinkedList<>();
-    inventory = new Inventory6();
-    allocated = new HashMap<>();
-
-    allocated.put("Single", new HashSet<>());
-    allocated.put("Double", new HashSet<>());
-    allocated.put("Suite", new HashSet<>());
-  }
-
-  void addRequest(Reservation6 r) {
-    queue.add(r);
-  }
-
-  void process() {
-
-    while (!queue.isEmpty()) {
-
-      Reservation6 r = queue.poll();
-
-      if (inventory.get(r.type) > 0) {
-
-        String id = r.type + "_" + (allocated.get(r.type).size() + 1);
-
-        if (!allocated.get(r.type).contains(id)) {
-
-          allocated.get(r.type).add(id);
-          inventory.reduce(r.type);
-
-          System.out.println("Booking confirmed for Guest: "+r.guest + " Room ID: "+id);
-        }
-
-      } else {
-
-        System.out.println(
-                r.guest + " failed no " + r.type);
+        System.out.println(s.name + " " + s.price);
+        total += s.price;
       }
     }
+
+    System.out.println("Total Add-On Cost: " + total);
   }
 }
 
@@ -90,13 +51,16 @@ public class Main{
 
   public static void main(String[] args) {
 
-    AllocationService6 s = new AllocationService6();
+    AddOnManager7 m = new AddOnManager7();
 
-    s.addRequest(new Reservation6("A", "Single"));
-    s.addRequest(new Reservation6("B", "Single"));
-    s.addRequest(new Reservation6("C", "Single"));
-    s.addRequest(new Reservation6("D", "Suite"));
+    String r1 = "RES1";
 
-    s.process();
+    m.addService(r1, new Service7("Breakfast: ", 200));
+    m.addService(r1, new Service7("Wifi: ", 100));
+    m.addService(r1, new Service7("Pickup: ", 300));
+
+    System.out.println("Services for " + r1);
+
+    m.showServices(r1);
   }
 }
