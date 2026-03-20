@@ -1,94 +1,53 @@
 import java.util.*;
 /*
 @author: Jaslyn Jacob
-@version: 10.0;
+@version: 11.0;
  */
 import java.util.*;
 
-class Inventory10 {
+class Inventory11 {
 
   HashMap<String, Integer> map;
 
-  Inventory10() {
+  Inventory11() {
 
     map = new HashMap<>();
 
     map.put("Single", 1);
-    map.put("Double", 1);
-    map.put("Suite", 1);
   }
 
-  void add(String type) {
-    map.put(type, map.get(type) + 1);
-  }
+  synchronized boolean book(String type, String guest) {
 
-  void reduce(String type) {
-    map.put(type, map.get(type) - 1);
-  }
+    if (map.get(type) > 0) {
 
-  int get(String type) {
-    return map.get(type);
+      map.put(type, map.get(type) - 1);
+
+      System.out.println(guest + " booked " + type);
+
+      return true;
+    }
+
+    System.out.println(guest + " failed");
+
+    return false;
   }
 }
 
-class BookingService10 {
+class BookingThread11 extends Thread {
 
-  Inventory10 inv;
+  Inventory11 inv;
 
-  HashMap<String, String> bookings;
+  String guest;
 
-  Stack<String> rollback;
+  BookingThread11(Inventory11 i, String g) {
 
-  BookingService10() {
-
-    inv = new Inventory10();
-
-    bookings = new HashMap<>();
-
-    rollback = new Stack<>();
+    inv = i;
+    guest = g;
   }
 
-  void book(String id, String type) {
+  public void run() {
 
-    if (inv.get(type) > 0) {
-
-      inv.reduce(type);
-
-      bookings.put(id, type);
-
-      rollback.push(id);
-
-      System.out.println(id + " booked " + type);
-    }
-  }
-
-  void cancel(String id) {
-
-    if (!bookings.containsKey(id)) {
-
-      System.out.println("Invalid cancel");
-      return;
-    }
-
-    String type = bookings.get(id);
-
-    inv.add(type);
-
-    bookings.remove(id);
-
-    rollback.push(id);
-
-    System.out.println(id + " cancelled");
-  }
-
-  void showInventory() {
-
-    System.out.println("Inventory");
-
-    for (String k : inv.map.keySet()) {
-
-      System.out.println(k + " " + inv.map.get(k));
-    }
+    inv.book("Single", guest);
   }
 }
 
@@ -96,16 +55,14 @@ public class Main{
 
   public static void main(String[] args) {
 
-    BookingService10 s = new BookingService10();
+    Inventory11 inv = new Inventory11();
 
-    s.book("R1", "Single");
+    Thread t1 = new BookingThread11(inv, "A");
+    Thread t2 = new BookingThread11(inv, "B");
+    Thread t3 = new BookingThread11(inv, "C");
 
-    s.showInventory();
-
-    s.cancel("R1");
-
-    s.showInventory();
-
-    s.cancel("R1");   // invalid
+    t1.start();
+    t2.start();
+    t3.start();
   }
 }
