@@ -1,42 +1,94 @@
 import java.util.*;
 /*
 @author: Jaslyn Jacob
-@version: 8.0;
+@version: 10.0;
  */
+import java.util.*;
 
-class InvalidBookingException9 extends Exception {
-
-  InvalidBookingException9(String msg) {
-    super(msg);
-  }
-}
-
-class Inventory9 {
+class Inventory10 {
 
   HashMap<String, Integer> map;
 
-  Inventory9() {
+  Inventory10() {
 
     map = new HashMap<>();
 
     map.put("Single", 1);
     map.put("Double", 1);
-    map.put("Suite", 0);
+    map.put("Suite", 1);
   }
 
-  void book(String type) throws InvalidBookingException9 {
+  void add(String type) {
+    map.put(type, map.get(type) + 1);
+  }
 
-    if (!map.containsKey(type)) {
-      throw new InvalidBookingException9("Invalid Room Type");
-    }
-
-    if (map.get(type) <= 0) {
-      throw new InvalidBookingException9("No Availability");
-    }
-
+  void reduce(String type) {
     map.put(type, map.get(type) - 1);
+  }
 
-    System.out.println(type + " booked");
+  int get(String type) {
+    return map.get(type);
+  }
+}
+
+class BookingService10 {
+
+  Inventory10 inv;
+
+  HashMap<String, String> bookings;
+
+  Stack<String> rollback;
+
+  BookingService10() {
+
+    inv = new Inventory10();
+
+    bookings = new HashMap<>();
+
+    rollback = new Stack<>();
+  }
+
+  void book(String id, String type) {
+
+    if (inv.get(type) > 0) {
+
+      inv.reduce(type);
+
+      bookings.put(id, type);
+
+      rollback.push(id);
+
+      System.out.println(id + " booked " + type);
+    }
+  }
+
+  void cancel(String id) {
+
+    if (!bookings.containsKey(id)) {
+
+      System.out.println("Invalid cancel");
+      return;
+    }
+
+    String type = bookings.get(id);
+
+    inv.add(type);
+
+    bookings.remove(id);
+
+    rollback.push(id);
+
+    System.out.println(id + " cancelled");
+  }
+
+  void showInventory() {
+
+    System.out.println("Inventory");
+
+    for (String k : inv.map.keySet()) {
+
+      System.out.println(k + " " + inv.map.get(k));
+    }
   }
 }
 
@@ -44,21 +96,16 @@ public class Main{
 
   public static void main(String[] args) {
 
-    Inventory9 inv = new Inventory9();
+    BookingService10 s = new BookingService10();
 
-    try {
+    s.book("R1", "Single");
 
-      inv.book("Single");
+    s.showInventory();
 
-      inv.book("Suite");   // no availability
+    s.cancel("R1");
 
-      inv.book("King");    // invalid type
+    s.showInventory();
 
-    } catch (InvalidBookingException9 e) {
-
-      System.out.println("Error: " + e.getMessage());
-    }
-
-    System.out.println("System running safely");
+    s.cancel("R1");   // invalid
   }
 }
