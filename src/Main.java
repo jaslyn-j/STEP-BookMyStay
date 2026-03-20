@@ -1,53 +1,70 @@
 import java.util.*;
+import java.io.*;
 /*
 @author: Jaslyn Jacob
-@version: 11.0;
+@version: 12.0;
  */
-import java.util.*;
 
-class Inventory11 {
+class DataStore12 implements Serializable {
 
-  HashMap<String, Integer> map;
+  HashMap<String, Integer> inventory;
 
-  Inventory11() {
+  DataStore12() {
 
-    map = new HashMap<>();
+    inventory = new HashMap<>();
 
-    map.put("Single", 1);
-  }
-
-  synchronized boolean book(String type, String guest) {
-
-    if (map.get(type) > 0) {
-
-      map.put(type, map.get(type) - 1);
-
-      System.out.println(guest + " booked " + type);
-
-      return true;
-    }
-
-    System.out.println(guest + " failed");
-
-    return false;
+    inventory.put("Single", 2);
+    inventory.put("Double", 1);
   }
 }
 
-class BookingThread11 extends Thread {
+class PersistenceService12 {
 
-  Inventory11 inv;
+  String file = "data.ser";
 
-  String guest;
+  void save(DataStore12 d) {
 
-  BookingThread11(Inventory11 i, String g) {
+    try {
 
-    inv = i;
-    guest = g;
+      ObjectOutputStream o =
+              new ObjectOutputStream(
+                      new FileOutputStream(file));
+
+      o.writeObject(d);
+
+      o.close();
+
+      System.out.println("Saved");
+
+    } catch (Exception e) {
+
+      System.out.println("Save error");
+    }
   }
 
-  public void run() {
+  DataStore12 load() {
 
-    inv.book("Single", guest);
+    try {
+
+      ObjectInputStream i =
+              new ObjectInputStream(
+                      new FileInputStream(file));
+
+      DataStore12 d =
+              (DataStore12) i.readObject();
+
+      i.close();
+
+      System.out.println("Loaded");
+
+      return d;
+
+    } catch (Exception e) {
+
+      System.out.println("No file, new data");
+
+      return new DataStore12();
+    }
   }
 }
 
@@ -55,14 +72,17 @@ public class Main{
 
   public static void main(String[] args) {
 
-    Inventory11 inv = new Inventory11();
+    PersistenceService12 p =
+            new PersistenceService12();
 
-    Thread t1 = new BookingThread11(inv, "A");
-    Thread t2 = new BookingThread11(inv, "B");
-    Thread t3 = new BookingThread11(inv, "C");
+    DataStore12 d =
+            p.load();
 
-    t1.start();
-    t2.start();
-    t3.start();
+    System.out.println(d.inventory);
+
+    d.inventory.put("Single",
+            d.inventory.get("Single") - 1);
+
+    p.save(d);
   }
 }
