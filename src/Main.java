@@ -3,51 +3,40 @@ import java.util.*;
 @author: Jaslyn Jacob
 @version: 8.0;
  */
-class Reservation8 {
 
-  String id;
-  String guest;
-  String type;
+class InvalidBookingException9 extends Exception {
 
-  Reservation8(String id, String guest, String type) {
-    this.id = id;
-    this.guest = guest;
-    this.type = type;
-  }
-
-  void show() {
-    System.out.println("GuesT ID: "+ id + ", Guest: " + guest + ", Room Type: " + type);
+  InvalidBookingException9(String msg) {
+    super(msg);
   }
 }
 
-class BookingHistory8 {
+class Inventory9 {
 
-  List<Reservation8> list;
+  HashMap<String, Integer> map;
 
-  BookingHistory8() {
-    list = new ArrayList<>();
+  Inventory9() {
+
+    map = new HashMap<>();
+
+    map.put("Single", 1);
+    map.put("Double", 1);
+    map.put("Suite", 0);
   }
 
-  void add(Reservation8 r) {
-    list.add(r);
-  }
+  void book(String type) throws InvalidBookingException9 {
 
-  List<Reservation8> getAll() {
-    return list;
-  }
-}
-
-class ReportService8 {
-
-  void printReport(List<Reservation8> l) {
-
-    System.out.println("Booking Report");
-
-    for (Reservation8 r : l) {
-      r.show();
+    if (!map.containsKey(type)) {
+      throw new InvalidBookingException9("Invalid Room Type");
     }
 
-    System.out.println("Total = " + l.size());
+    if (map.get(type) <= 0) {
+      throw new InvalidBookingException9("No Availability");
+    }
+
+    map.put(type, map.get(type) - 1);
+
+    System.out.println(type + " booked");
   }
 }
 
@@ -55,14 +44,21 @@ public class Main{
 
   public static void main(String[] args) {
 
-    BookingHistory8 h = new BookingHistory8();
+    Inventory9 inv = new Inventory9();
 
-    h.add(new Reservation8("R1", "A", "Single"));
-    h.add(new Reservation8("R2", "B", "Double"));
-    h.add(new Reservation8("R3", "C", "Suite"));
+    try {
 
-    ReportService8 r = new ReportService8();
+      inv.book("Single");
 
-    r.printReport(h.getAll());
+      inv.book("Suite");   // no availability
+
+      inv.book("King");    // invalid type
+
+    } catch (InvalidBookingException9 e) {
+
+      System.out.println("Error: " + e.getMessage());
+    }
+
+    System.out.println("System running safely");
   }
 }
